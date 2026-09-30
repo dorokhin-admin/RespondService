@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Генератор контента</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        :root {
+            --color-background: #f4f6f8;
+            --color-foreground: #111827;
+            --color-muted-foreground: #6b7280;
+            --color-card: #ffffff;
+            --color-border: #e5e7eb;
+            --color-muted: #f9fafb;
+            --color-primary: #8b7fc7;
+            --color-secondary: #7e9478;
+            --font-sans: system-ui, -apple-system, sans-serif;
+        }
+
+    </style>
+
+</head>
+
+
+<body
+    class="min-h-screen w-full flex items-start justify-center py-10 px-4"
+    style="
+        background: var(--color-background);
+        font-family: var(--font-sans);
+    "
+>
+
+
+<div class="w-full max-w-2xl flex flex-col gap-6">
+
+
+    <!-- ===================================================== -->
+    <!-- ЗАГОЛОВОК -->
+    <!-- ===================================================== -->
+
+    <div class="flex flex-col gap-1">
+
+        <div class="flex items-center gap-3">
+
+            <div
+                class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-sm"
+                style="background: var(--color-primary)"
+            >
+                ✦
+            </div>
+
+            <h1
+                class="text-2xl tracking-tight"
+                style="
+                    color: var(--color-foreground);
+                    font-weight: 800;
+                "
+            >
+                Генератор контента
+            </h1>
+
+        </div>
+
+        <p
+            class="text-sm pl-12"
+            style="color: var(--color-muted-foreground)"
+        >
+            Настройте параметры и получите готовый контент для соцсетей
+        </p>
+
+        <div class="mt-4 rounded-2xl p-5 flex flex-col gap-3" style="background: var(--color-card); border: 1.5px solid var(--color-border);">
+            <p class="text-xs uppercase tracking-widest" style="font-weight: 700; color: var(--color-muted-foreground); letter-spacing: 0.08em;">Аккаунт RespondService</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input id="authEmail" type="email" placeholder="Email" class="rounded-xl px-4 py-3 text-sm outline-none" style="background: var(--color-muted); border: 1.5px solid var(--color-border);">
+                <input id="authPassword" type="password" placeholder="Пароль (8+ символов)" class="rounded-xl px-4 py-3 text-sm outline-none" style="background: var(--color-muted); border: 1.5px solid var(--color-border);">
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="authenticate('login')" class="rounded-xl px-4 py-2 text-sm font-bold" style="background: var(--color-primary); color: white;">Войти</button>
+                <button type="button" onclick="authenticate('register')" class="rounded-xl px-4 py-2 text-sm font-bold" style="background: var(--color-muted); color: var(--color-foreground); border: 1.5px solid var(--color-border);">Регистрация</button>
+                    <button id="logoutBtn" type="button" onclick="logoutService()" class="hidden rounded-xl px-4 py-2 text-sm font-bold" style="background: #fee2e2; color: #991b1b;">Выйти</button>
+            </div>
+            <div id="socialAccountsPanel" class="hidden flex flex-col gap-3">
+                <div class="flex flex-wrap gap-2">
+                    <div class="flex flex-wrap gap-2">
+    <button
+        type="button"
+        onclick="connectSocial('instagram')"
+        class="rounded-xl px-3 py-2 text-xs font-bold"
+        style="background: #d94675; color: white;"
+    >
+        Подключить Instagram
+    </button>
+
+    <button
+        type="button"
+        onclick="connectSocial('facebook')"
+        class="rounded-xl px-3 py-2 text-xs font-bold"
+        style="background: #1877f2; color: white;"
+    >
+        Подключить Facebook
+    </button>
+
+    <button
+        type="button"
+        onclick="connectSocial('threads')"
+        class="rounded-xl px-3 py-2 text-xs font-bold"
+        style="background: #111827; color: white;"
+    >
+        Подключить Threads
+    </button>
+
+    <button
+        type="button"
+        onclick="connectSocial('tiktok')"
+        class="rounded-xl px-3 py-2 text-xs font-bold"
+        style="background: #000000; color: white;"
+    >
+        Подключить TikTok
+    </button>
+
+    <button
+    type="button"
+    onclick="connectSocial('linkedin')"
+    class="rounded-xl px-3 py-2 text-xs font-bold"
+    style="background: #0a66c2; color: white;"
+>
+    Подключить LinkedIn
+</button>
+
+<button
+    type="button"
+    onclick="connectSocial('youtube')"
+    class="rounded-xl px-3 py-2 text-xs font-bold"
+    style="background: #ff0000; color: white;"
+>
+    Подключить YouTube
+</button>
+
+
+</div>
+                </div>
+                <select id="selectedAccount" class="rounded-xl px-4 py-3 text-sm outline-none" style="background: var(--color-muted); border: 1.5px solid var(--color-border);">
+                    <option value="">Выберите аккаунт для публикации</option>
+                </select>
+                    <div id="connectedAccounts" class="flex flex-col gap-2"></div>
+                <p id="accountStatus" class="text-xs" style="color: var(--color-muted-foreground);"></p>
+            </div>
+        </div>
+
+    </div>
+
+    
+
+    <!-- ===================================================== -->
+    <!-- ЯЗЫК -->
+    <!-- ===================================================== -->
+
+    <div
+        class="rounded-2xl p-5 flex flex-col gap-3"
+        style="
+            background: var(--color-card);
+            border: 1.5px solid var(--color-border);
+            box-shadow: rgba(46, 43, 39, 0.05) 0px 1px 4px;
+        "
+    >
+
+        <p
+            class="text-xs uppercase tracking-widest"
+            style="
+                font-weight: 700;
+                color: var(--color-muted-foreground);
+                letter-spacing: 0.08em;
+            "
+        >
+            🌐 Язык контента
+        </p>
+
+
+        <div class="relative">
+
+            <select
+                id="language"
+                class="w-full appearance-none rounded-xl px-4 py-3 text-sm pr-10 outline-none transition-all cursor-pointer"
+                style="
+                    background: var(--color-muted);
+                    color: var(--color-foreground);
+                    border: 1.5px solid var(--color-border);
+                    font-family: var(--font-sans);
+                    font-weight: 600;
+                "
+            >
+
+                <option value="en">
+                    EN — English
+                </option>
+
+                <option value="es">
+                    ES — Español
+                </option>
+
+                <option value="pt">
+                    PT — Português
+                </option>
+
+                <option value="fr">
+                    FR — Français
+                </option>
+
+                <option value="ru" selected>
+                    RU — Русский
+                </option>
+
+                <option value="de">
+                    DE — Deutsch
+                </option>
+
+            </select>
+
+
+            <span
+                class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs"
+                style="color: var(--color-muted-foreground)"
+            >
+                ▼
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- ФОРМАТЫ -->
+    <!-- ===================================================== -->
+
+    <div
+        class="rounded-2xl p-5 flex flex-col gap-3"
+        style="
+            background: var(--color-card);
+            border: 1.5px solid var(--color-border);
+            box-shadow: rgba(46, 43, 39, 0.05) 0px 1px 4px;
+        "
+    >
+
+        <p
+            class="text-xs uppercase tracking-widest"
+            style="
+                font-weight: 700;
+                color: var(--color-muted-foreground);
+                letter-spacing: 0.08em;
+            "
+        >
+            📋 Форматы публикаций
+        </p>
+
+
+        <div class="flex flex-col gap-3">
+
+
+            <!-- ================================================= -->
+            <!-- CAROUSEL -->
+            <!-- ================================================= -->
+
+            <button
+                type="button"
+                onclick="setFormat('carousel')"
+                id="formatPost"
+                class="flex items-center gap-4 rounded-xl px-4 py-3 text-left transition-all cursor-pointer"
+                style="
+                    background: rgba(139, 127, 199, 0.1);
+                    border: 1.5px solid var(--color-primary);
+                "
+            >
+
+                <div
+                    id="checkPost"
+                    class="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all text-white text-xs font-bold"
+                    style="background: var(--color-primary)"
+                >
+                    ✓
+                </div>
+
+
+                <span
+                    class="text-lg flex-shrink-0"
+                    style="color: var(--color-primary)"
+                >
+                    ✦
+                </span>
+
+
+                <div class="flex flex-col">
+
+                    <span
+                        class="text-sm"
+                        style="
+                            font-weight: 700;
+                            color: var(--color-foreground);
+                        "
+                    >
+                        Карусель
+                    </span>
+
+                    <span
+                        class="text-xs"
+                        style="color: var(--color-muted-foreground)"
+                    >
+                        Threads
+                    </span>
+
+                </div>
+
+            </button>
+
+
+            <!-- ================================================= -->
+            <!-- REELS -->
+            <!-- ================================================= -->
+
+            <button
+                type="button"
+                onclick="setFormat('reels')"
+                id="formatReels"
+                class="flex items-center gap-4 rounded-xl px-4 py-3 text-left transition-all cursor-pointer"
+                style="
+                    background: var(--color-muted);
+                    border: 1.5px solid var(--color-border);
+                "
+            >
+
+                <div
+                    id="checkReels"
+                    class="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all text-white text-xs font-bold"
+                    style="
+                        background: white;
+                        border: 1.5px solid var(--color-border);
+                    "
+                ></div>
+
+
+                <span
+                    class="text-lg flex-shrink-0"
+                    style="color: var(--color-primary)"
+                >
+                    ▶
+                </span>
+
+
+                <div class="flex flex-col">
+
+                    <span
+                        class="text-sm"
+                        style="
+                            font-weight: 700;
+                            color: var(--color-foreground);
+                        "
+                    >
+                        Сценарий Reels / Shorts
+                    </span>
+
+                    <span
+                        class="text-xs"
+                        style="color: var(--color-muted-foreground)"
+                    >
+                        Сценарий и раскадровка
+                    </span>
+
+                </div>
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- AI ПРОВАЙДЕР -->
+    <!-- ===================================================== -->
+
+    <div
+        class="rounded-2xl p-5 flex flex-col gap-3"
+        style="
+            background: var(--color-card);
+            border: 1.5px solid var(--color-border);
+            box-shadow: rgba(46, 43, 39, 0.05) 0px 1px 4px;
+        "
+    >
+
+        <p
+            class="text-xs uppercase tracking-widest"
+            style="
+                font-weight: 700;
+                color: var(--color-muted-foreground);
+                letter-spacing: 0.08em;
+            "
+        >
+            🤖 ИИ-провайдер
+        </p>
+
+
+        <div
+            class="flex items-start gap-4 rounded-xl px-4 py-3"
+            style="
+                background: rgba(126, 148, 120, 0.12);
+                border: 1.5px solid var(--color-secondary);
+            "
+        >
+            <span
+                class="text-sm"
+                style="font-weight: 700; color: var(--color-foreground);"
+            >
+                OpenAI
+            </span>
+            <span
+                class="text-xs"
+                style="color: var(--color-muted-foreground)"
+            >
+                Текст и изображения создаются через OPENAI_API_KEY
+            </span>
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- ТЕКСТ СТРАНИЦЫ -->
+    <!-- ===================================================== -->
+
+    <div
+        class="rounded-2xl p-5 flex flex-col gap-3"
+        style="
+            background: var(--color-card);
+            border: 1.5px solid var(--color-border);
+            box-shadow: rgba(46, 43, 39, 0.05) 0px 1px 4px;
+        "
+    >
+
+        <p
+            class="text-xs uppercase tracking-widest"
+            style="
+                font-weight: 700;
+                color: var(--color-muted-foreground);
+                letter-spacing: 0.08em;
+            "
+        >
+            📄 Текст страницы
+        </p>
+
+
+        <!-- SELECT PAGE -->
+
+        <select
+            id="pageSelect"
+            onchange="selectPage()"
+            class="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all cursor-pointer"
+            style="
+                background: var(--color-muted);
+                color: var(--color-foreground);
+                border: 1.5px solid var(--color-border);
+                font-family: var(--font-sans);
+                font-weight: 600;
+            "
+        >
+
+            <option value="">
+                Загрузка страниц...
+            </option>
+
+        </select>
+
+
+        <!-- TEXTAREA -->
+
+        <textarea
+            id="pageText"
+            rows="5"
+            oninput="validateForm()"
+            placeholder="Вставьте текст или выжимку из структуры сайта компании, которую нужно прорекламировать..."
+            class="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none transition-all"
+            style="
+                background: var(--color-muted);
+                border: 1.5px solid var(--color-border);
+                color: var(--color-foreground);
+                font-family: var(--font-sans);
+            "
+        ></textarea>
+
+
+        <div class="flex justify-end mt-1">
+
+            <span
+                id="charCount"
+                class="text-xs"
+                style="color: var(--color-muted-foreground)"
+            >
+                0 симв.
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- TONE OF VOICE -->
+    <!-- ===================================================== -->
+
+    <div
+        class="rounded-2xl p-5 flex flex-col gap-3"
+        style="
+            background: var(--color-card);
+            border: 1.5px solid var(--color-border);
+            box-shadow: rgba(46, 43, 39, 0.05) 0px 1px 4px;
+        "
+    >
+
+        <p
+            class="text-xs uppercase tracking-widest"
+            style="
+                font-weight: 700;
+                color: var(--color-muted-foreground);
+                letter-spacing: 0.08em;
+            "
+        >
+            🎨 Tone of Voice
+        </p>
+
+
+        <textarea
+            id="toneText"
+            rows="3"
+            placeholder="Напр.: Современный, дружелюбный, экспертный тон, без занудства и канцелярита."
+            class="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none transition-all"
+            style="
+                background: var(--color-muted);
+                border: 1.5px solid var(--color-border);
+                color: var(--color-foreground);
+                font-family: var(--font-sans);
+            "
+        ></textarea>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- GENERATE BUTTON -->
+    <!-- ===================================================== -->
+
+    <div class="flex flex-col gap-3">
+
+        <button
+            type="button"
+            id="generateBtn"
+            disabled
+            onclick="handleGenerate()"
+            class="w-full rounded-xl py-4 text-sm transition-all"
+            style="
+                font-weight: 800;
+                background: var(--color-border);
+                color: var(--color-muted-foreground);
+                cursor: not-allowed;
+                letter-spacing: 0.01em;
+            "
+        >
+            ✦ Сгенерировать контент
+        </button>
+
+
+        <p
+            id="validationHint"
+            class="text-xs text-center"
+            style="color: var(--color-muted-foreground)"
+        >
+            Заполните текст страницы и выберите хотя бы один формат
+        </p>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- RESULT -->
+    <!-- ===================================================== -->
+
+    <div
+        id="resultBox"
+        class="rounded-2xl p-5 flex flex-col gap-3 hidden"
+        style="
+            background: var(--color-card);
+            border: 1.5px solid var(--color-border);
+            box-shadow: rgba(46, 43, 39, 0.05) 0px 1px 4px;
+        "
+    >
+
+        <p
+            class="text-xs uppercase tracking-widest"
+            style="
+                font-weight: 700;
+                color: var(--color-secondary);
+                letter-spacing: 0.08em;
+            "
+        >
+            ✨ Результат генерации
+        </p>
+
+
+        <!-- JSON RESULT -->
+
+        <div
+            id="resultText"
+            class="text-sm p-4 rounded-xl whitespace-pre-wrap"
+            style="
+                background: var(--color-muted);
+                color: var(--color-foreground);
+                border: 1.5px solid var(--color-border);
+                overflow-x: auto;
+                max-height: 700px;
+                overflow-y: auto;
+            "
+        ></div>
+
+
+
+<!-- ================================================= -->
+<!-- PUBLISH BUTTONS -->
+<!-- ================================================= -->
+
+<div class="flex flex-col gap-3">
+
+    <!-- THREADS -->
+
+    <button
+        type="button"
+        id="publishBtn"
+        onclick="publishToThreads()"
+        class="w-full rounded-xl py-4 text-sm transition-all"
+        style="
+            font-weight: 800;
+            background: var(--color-secondary);
+            color: white;
+            cursor: pointer;
+            letter-spacing: 0.01em;
+            display: none;
+        "
+    >
+        ↗ Опубликовать в Threads
+    </button>
+
+
+    <!-- INSTAGRAM -->
+
+    <button
+        type="button"
+        id="publishInstagramBtn"
+        onclick="publishToInstagram()"
+        class="w-full rounded-xl py-4 text-sm transition-all"
+        style="
+            font-weight: 800;
+            background: var(--color-primary);
+            color: white;
+            cursor: pointer;
+            letter-spacing: 0.01em;
+            display: none;
+        "
+    >
+        ◎ Опубликовать в Instagram
+    </button>
+
+<!-- FACEBOOK -->
+
+<button
+    type="button"
+    id="publishFacebookBtn"
+    onclick="publishToFacebook()"
+    class="w-full rounded-xl py-4 text-sm transition-all"
+    style="
+        font-weight: 800;
+        background: #1877f2;
+        color: white;
+        cursor: pointer;
+        letter-spacing: 0.01em;
+        display: none;
+    "
+>
+    f Опубликовать в Facebook
+</button>
+
+<!-- TIKTOK -->
+
+<button
+    type="button"
+    id="publishTikTokBtn"
+    onclick="publishToTikTok()"
+    class="w-full rounded-xl py-4 text-sm transition-all"
+    style="
+        font-weight: 800;
+        background: #000000;
+        color: white;
+        cursor: pointer;
+        letter-spacing: 0.01em;
+        display: none;
+    "
+>
+    ♪ Опубликовать в TikTok
+</button>
+
+<!-- LINKEDIN -->
+
+<button
+    type="button"
+    id="publishLinkedInBtn"
+    onclick="publishToLinkedIn()"
+    class="w-full rounded-xl py-4 text-sm transition-all"
+    style="
+        font-weight: 800;
+        background: #0a66c2;
+        color: white;
+        cursor: pointer;
+        letter-spacing: 0.01em;
+        display: none;
+    "
+>
+    in Опубликовать в LinkedIn
+</button>
+
+<!-- YOUTUBE -->
+
+<button
+    type="button"
+    id="publishYouTubeBtn"
+    onclick="publishToYouTube()"
+    class="w-full rounded-xl py-4 text-sm transition-all"
+    style="
+        font-weight: 800;
+        background: #ff0000;
+        color: white;
+        cursor: pointer;
+        letter-spacing: 0.01em;
+        display: none;
+    "
+>
+    ▶ Опубликовать в YouTube
+</button>
+
+
+
+</div>
+
+
+
+        <!-- PUBLISH STATUS -->
+
+        <p
+            id="publishStatus"
+            class="text-xs text-center hidden"
+            style="color: var(--color-muted-foreground)"
+        ></p>
+
+    </div>
+
+
+    <div class="h-4"></div>
+
+</div>
+
+
+<script>
+
+
+    // ========================================================
+    // СОСТОЯНИЕ ПРИЛОЖЕНИЯ
+    // ========================================================
+
+    let currentFormat = 'carousel';
+
+    let isLoading = false;
+
+    let isPublishing = false;
+
+    let sourcePages = [];
+
+    let generatedContent = null;
+
+
+    // ========================================================
+    // API
+    // ========================================================
+
+    const API_BASE_URL = (() => {
+        const localFrontendHostnames = new Set([
+            '127.0.0.1',
+            'localhost',
+            '[::1]'
+        ]);
+
+        if (localFrontendHostnames.has(window.location.hostname)) {
+            return 'http://127.0.0.1:8000';
+        }
+
+        return window.location.protocol === 'http:' ||
+            window.location.protocol === 'https:'
+            ? window.location.origin
+            : 'http://127.0.0.1:8000';
+    })();
+
+    let authToken = localStorage.getItem('respondservice_access_token') || '';
+    let currentUser = null;
+    try {
+        currentUser = JSON.parse(
+            localStorage.getItem('respondservice_user') || 'null'
+        );
+    } catch (error) {
+        localStorage.removeItem('respondservice_user');
+    }
+    let selectedAccountId =
+        localStorage.getItem('respondservice_selected_account') || '';
+
+    const oauthResult = new URLSearchParams(window.location.search).get('oauth');
+    if (oauthResult === 'connected') {
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (oauthResult === 'denied') {
+        alert('Подключение социальной сети отменено или отклонено.');
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    function publishHeaders() {
+        const accountId = document.getElementById('selectedAccount').value;
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+            'X-Account-Id': accountId
+        };
+    }
+
+    function requireSelectedPlatform(platform) {
+        const select = document.getElementById('selectedAccount');
+        const selectedOption = select.options[select.selectedIndex];
+        if (!authToken) {
+            alert('Сначала войдите в RespondService.');
+            return false;
+        }
+        if (!select.value) {
+            alert('Сначала выберите подключённый аккаунт.');
+            return false;
+        }
+        if (selectedOption.dataset.platform !== platform) {
+            alert(`Выбран аккаунт ${selectedOption.dataset.platform}, а не ${platform}.`);
+            return false;
+        }
+        return true;
+    }
+
+    function showAuthenticatedState() {
+        document.getElementById('socialAccountsPanel').classList.remove('hidden');
+        document.getElementById('logoutBtn').classList.remove('hidden');
+        if (currentUser && currentUser.email) {
+            document.getElementById('authEmail').value = currentUser.email;
+        }
+    }
+
+    function saveAuthenticatedState(data) {
+        authToken = data.access_token || '';
+        currentUser = {
+            user_id: data.user_id,
+            email: data.email || document.getElementById('authEmail').value.trim()
+        };
+        localStorage.setItem('respondservice_access_token', authToken);
+        localStorage.setItem('respondservice_user', JSON.stringify(currentUser));
+        showAuthenticatedState();
+    }
+
+    async function authenticate(action) {
+        const email = document.getElementById('authEmail').value.trim();
+        const password = document.getElementById('authPassword').value;
+        const response = await fetch(`${API_BASE_URL}/api/v1/auth/${action}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await readResponseData(response);
+        if (!response.ok) {
+            alert(getErrorMessage(data, 'Не удалось выполнить вход'));
+            return;
+        }
+        if (data.access_token) {
+            saveAuthenticatedState(data);
+            await loadSocialAccounts();
+        }
+    }
+
+    async function loadSocialAccounts() {
+        const response = await fetch(`${API_BASE_URL}/api/v1/social-accounts`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const data = await readResponseData(response);
+        if (!response.ok) return;
+        const select = document.getElementById('selectedAccount');
+        select.innerHTML = '<option value="">Выберите аккаунт для публикации</option>';
+        data.accounts.forEach(account => {
+            const option = document.createElement('option');
+            option.value = account.id;
+            option.dataset.platform = account.platform;
+            option.textContent = `${account.platform} - ${account.account_name}`;
+            select.appendChild(option);
+        });
+        const accountsBox = document.getElementById('connectedAccounts');
+        accountsBox.innerHTML = '';
+        data.accounts.forEach(account => {
+            const row = document.createElement('div');
+            row.className = 'flex items-center justify-between gap-3 rounded-xl px-3 py-2';
+            row.style.cssText = 'background: var(--color-muted); border: 1.5px solid var(--color-border);';
+            row.innerHTML = `
+                <span class="text-xs" style="color: var(--color-foreground);">
+                    ${account.platform} - ${account.account_name}
+                </span>
+                <button type="button" class="rounded-lg px-2 py-1 text-xs font-bold" style="background: #fee2e2; color: #991b1b;" onclick="disconnectSocial(${account.id})">
+                    Отключить
+                </button>`;
+            accountsBox.appendChild(row);
+        });
+        if (selectedAccountId && data.accounts.some(
+            account => String(account.id) === String(selectedAccountId)
+        )) {
+            select.value = selectedAccountId;
+        } else {
+            selectedAccountId = '';
+            localStorage.removeItem('respondservice_selected_account');
+        }
+        document.getElementById('accountStatus').textContent =
+            data.accounts.length ? 'Аккаунты подключены.' : 'Подключите соцсеть через OAuth.';
+    }
+
+    async function disconnectSocial(accountId) {
+        const response = await fetch(`${API_BASE_URL}/api/v1/social-accounts/${accountId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const data = await readResponseData(response);
+        if (!response.ok) {
+            alert(getErrorMessage(data, 'Не удалось отключить аккаунт'));
+            return;
+        }
+        if (String(selectedAccountId) === String(accountId)) {
+            selectedAccountId = '';
+            localStorage.removeItem('respondservice_selected_account');
+        }
+        await loadSocialAccounts();
+    }
+
+    async function logoutService() {
+        if (authToken) {
+            await fetch(`${API_BASE_URL}/api/v1/auth/logout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+        }
+        authToken = '';
+        currentUser = null;
+        selectedAccountId = '';
+        localStorage.removeItem('respondservice_access_token');
+        localStorage.removeItem('respondservice_user');
+        localStorage.removeItem('respondservice_selected_account');
+        document.getElementById('socialAccountsPanel').classList.add('hidden');
+        document.getElementById('logoutBtn').classList.add('hidden');
+        document.getElementById('authPassword').value = '';
+        document.getElementById('selectedAccount').innerHTML =
+            '<option value="">Выберите аккаунт для публикации</option>';
+        document.getElementById('connectedAccounts').innerHTML = '';
+    }
+
+    document.getElementById('selectedAccount').addEventListener('change', event => {
+    selectedAccountId = event.target.value;
+
+    if (selectedAccountId) {
+        localStorage.setItem(
+            'respondservice_selected_account',
+            selectedAccountId
+        );
+    } else {
+        localStorage.removeItem(
+            'respondservice_selected_account'
+        );
+    }
+});
+
+
+async function connectSocial(platform) {
+    const endpoint =
+        platform === 'tiktok'
+            ? `${API_BASE_URL}/api/v1/oauth/tiktok/start`
+            : platform === 'linkedin'
+                ? `${API_BASE_URL}/api/v1/oauth/linkedin/start`
+                : platform === 'youtube'
+                    ? `${API_BASE_URL}/api/v1/oauth/youtube/start`
+                    : `${API_BASE_URL}/api/v1/oauth/meta/${platform}/start`;
+
+    const response = await fetch(
+        endpoint,
+        {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        }
+    );
+
+    const data = await readResponseData(response);
+
+    if (!response.ok) {
+        alert(
+            getErrorMessage(
+                data,
+                'OAuth ещё не настроен'
+            )
+        );
+        return;
+    }
+
+    window.location.href = data.authorization_url;
+}
+
+
+if (authToken) {
+
+    showAuthenticatedState();
+
+    loadSocialAccounts().catch(error => {
+
+        console.error(
+            'Не удалось восстановить сессию:',
+            error
+        );
+
+        document.getElementById(
+            'accountStatus'
+        ).textContent =
+            'Не удалось загрузить аккаунты. Сессия сохранена, повторите обновление.';
+    });
+}
+
+    // ========================================================
+    // ЗАГРУЗКА ИСХОДНЫХ ТЕКСТОВ
+    // ========================================================
+
+    async function loadSourceTexts() {
+
+        const pageSelect =
+            document.getElementById(
+                'pageSelect'
+            );
+
+
+        try {
+
+            pageSelect.innerHTML =
+                '<option value="">Загрузка страниц...</option>';
+
+
+            const response =
+                await fetch(
+                    `${API_BASE_URL}/api/v1/source-texts`
+                );
+
+
+            const data =
+                await readResponseData(response);
+
+
+            if (
+                !response.ok
+            ) {
+
+                if (
+                    data.detail ===
+                    'texts_not_ready'
+                ) {
+
+                    pageSelect.innerHTML =
+                        '<option value="">Тексты пока не готовы</option>';
+
+                    return;
+                }
+
+
+                throw new Error(
+                    data.detail ||
+                    'Ошибка загрузки текстов'
+                );
+            }
+
+
+            // ------------------------------------------------
+            // СОХРАНЯЕМ СТРАНИЦЫ
+            // ------------------------------------------------
+
+            sourcePages =
+                data.pages || [];
+
+
+            // ------------------------------------------------
+            // TONE OF VOICE
+            // ------------------------------------------------
+
+            document.getElementById(
+                'toneText'
+            ).value =
+                data.tov || '';
+
+
+            // ------------------------------------------------
+            // SELECT
+            // ------------------------------------------------
+
+            pageSelect.innerHTML =
+                '<option value="">Выберите страницу</option>';
+
+
+            sourcePages.forEach(
+                (page, index) => {
+
+                    const option =
+                        document.createElement(
+                            'option'
+                        );
+
+
+                    option.value =
+                        index;
+
+
+                    option.textContent =
+                        page.h1 ||
+                        page.page ||
+                        `Страница ${index + 1}`;
+
+
+                    pageSelect.appendChild(
+                        option
+                    );
+
+                }
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                'Ошибка загрузки исходных текстов:',
+                error
+            );
+
+
+            pageSelect.innerHTML =
+                `<option value="">Не удалось загрузить страницы: ${
+                    error.message || 'проверьте подключение к backend'
+                }</option>`;
+        }
+    }
+
+
+    // ========================================================
+    // ВЫБОР СТРАНИЦЫ
+    // ========================================================
+
+    function selectPage() {
+
+        const select =
+            document.getElementById(
+                'pageSelect'
+            );
+
+
+        const selectedIndex =
+            select.value;
+
+
+        if (
+            selectedIndex === ''
+        ) {
+            return;
+        }
+
+
+        const page =
+            sourcePages[
+                Number(selectedIndex)
+            ];
+
+
+        if (!page) {
+            return;
+        }
+
+
+        document.getElementById(
+            'pageText'
+        ).value =
+            page.page_text || '';
+
+
+        validateForm();
+    }
+
+
+    // ========================================================
+    // ВЫБОР ФОРМАТА
+    // ========================================================
+
+    function setFormat(format) {
+
+        currentFormat =
+            format;
+
+
+        const postBtn =
+            document.getElementById(
+                'formatPost'
+            );
+
+
+        const reelsBtn =
+            document.getElementById(
+                'formatReels'
+            );
+
+
+        const checkPost =
+            document.getElementById(
+                'checkPost'
+            );
+
+
+        const checkReels =
+            document.getElementById(
+                'checkReels'
+            );
+
+
+        if (
+            format === 'carousel'
+        ) {
+
+            postBtn.style.background =
+                'rgba(139, 127, 199, 0.1)';
+
+            postBtn.style.border =
+                '1.5px solid var(--color-primary)';
+
+            checkPost.style.background =
+                'var(--color-primary)';
+
+            checkPost.style.border =
+                'none';
+
+            checkPost.textContent =
+                '✓';
+
+
+            reelsBtn.style.background =
+                'var(--color-muted)';
+
+            reelsBtn.style.border =
+                '1.5px solid var(--color-border)';
+
+            checkReels.style.background =
+                'white';
+
+            checkReels.style.border =
+                '1.5px solid var(--color-border)';
+
+            checkReels.textContent =
+                '';
+
+
+        } else {
+
+            reelsBtn.style.background =
+                'rgba(139, 127, 199, 0.1)';
+
+            reelsBtn.style.border =
+                '1.5px solid var(--color-primary)';
+
+            checkReels.style.background =
+                'var(--color-primary)';
+
+            checkReels.style.border =
+                'none';
+
+            checkReels.textContent =
+                '✓';
+
+
+            postBtn.style.background =
+                'var(--color-muted)';
+
+            postBtn.style.border =
+                '1.5px solid var(--color-border)';
+
+            checkPost.style.background =
+                'white';
+
+            checkPost.style.border =
+                '1.5px solid var(--color-border)';
+
+            checkPost.textContent =
+                '';
+        }
+
+
+        validateForm();
+    }
+
+
+    // ========================================================
+    // ВАЛИДАЦИЯ
+    // ========================================================
+
+    function validateForm() {
+
+        const pageText =
+            document.getElementById(
+                'pageText'
+            ).value;
+
+
+        const btn =
+            document.getElementById(
+                'generateBtn'
+            );
+
+
+        const hint =
+            document.getElementById(
+                'validationHint'
+            );
+
+
+        document.getElementById(
+            'charCount'
+        ).textContent =
+            `${pageText.length} симв.`;
+
+
+        const canGenerate =
+            pageText.trim().length > 0 &&
+            currentFormat &&
+            !isLoading;
+
+
+        if (
+            canGenerate
+        ) {
+
+            btn.removeAttribute(
+                'disabled'
+            );
+
+
+            btn.style.background =
+                'var(--color-primary)';
+
+
+            btn.style.color =
+                'white';
+
+
+            btn.style.cursor =
+                'pointer';
+
+
+            hint.style.display =
+                'none';
+
+
+        } else {
+
+            btn.setAttribute(
+                'disabled',
+                'true'
+            );
+
+
+            btn.style.background =
+                'var(--color-border)';
+
+
+            btn.style.color =
+                'var(--color-muted-foreground)';
+
+
+            btn.style.cursor =
+                'not-allowed';
+
+
+            hint.style.display =
+                'block';
+        }
+    }
+
+
+    // ========================================================
+    // ПОЛУЧЕНИЕ ОШИБКИ
+    // ========================================================
+
+    async function readResponseData(response) {
+        const responseText = await response.text();
+
+        if (!responseText) {
+            return {};
+        }
+
+        try {
+            return JSON.parse(responseText);
+        } catch (error) {
+            return {
+                detail: responseText.trim()
+            };
+        }
+    }
+
+    function getErrorMessage(
+        data,
+        defaultMessage
+    ) {
+
+        if (
+            !data ||
+            !data.detail
+        ) {
+
+            return defaultMessage;
+        }
+
+
+        if (
+            Array.isArray(
+                data.detail
+            )
+        ) {
+
+            return data.detail
+                .map(
+                    item =>
+                        item.msg ||
+                        JSON.stringify(item)
+                )
+                .join('; ');
+        }
+
+
+        if (
+            typeof data.detail ===
+            'string'
+        ) {
+
+            return data.detail;
+        }
+
+
+        return JSON.stringify(
+            data.detail
+        );
+    }
+
+
+    // ========================================================
+    // ГЕНЕРАЦИЯ
+    // ========================================================
+
+    async function handleGenerate() {
+        const pageText = document.getElementById('pageText').value.trim();
+        const toneText = document.getElementById('toneText').value.trim();
+        const language = document.getElementById('language').value;
+        const publishFacebookBtn =
+    document.getElementById('publishFacebookBtn');
+    const publishTikTokBtn = 
+    document.getElementById('publishTikTokBtn');
+    const publishLinkedInBtn =
+    document.getElementById('publishLinkedInBtn');
+    const publishYouTubeBtn =
+    document.getElementById('publishYouTubeBtn');
+
+        if (!pageText || isLoading) {
+            return;
+        }
+
+        isLoading = true;
+        generatedContent = null;
+        validateForm();
+
+        const btn = document.getElementById('generateBtn');
+        btn.textContent = '✦ Генерация контента...';
+
+        const resultBox = document.getElementById('resultBox');
+        const resultText = document.getElementById('resultText');
+        const publishBtn = document.getElementById('publishBtn');
+        const publishStatus = document.getElementById('publishStatus');
+        const publishInstagramBtn =
+    document.getElementById('publishInstagramBtn');
+
+publishBtn.style.display = 'none'; 
+publishInstagramBtn.style.display = 'none'; 
+publishFacebookBtn.style.display = 'none';
+publishTikTokBtn.style.display = 'none';
+publishStatus.classList.add('hidden');
+publishLinkedInBtn.style.display = 'none';
+publishYouTubeBtn.style.display = 'none';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/v1/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    page_text: pageText,
+                    tov: toneText,
+                    language: language,
+                    selected_formats: [currentFormat],
+                    provider: 'openai'
+                })
+            });
+
+            const data = await readResponseData(response);
+
+            if (!response.ok) {
+                throw new Error(getErrorMessage(data, 'Ошибка генерации контента'));
+            }
+
+            generatedContent = data.content;
+            resultText.textContent = typeof data.content === 'string'
+                ? data.content
+                : JSON.stringify(data.content, null, 2);
+            
+            // ПОКАЗЫВАЕМ БЛОК РЕЗУЛЬТАТА И КНОПКУ ПУБЛИКАЦИИ
+resultBox.classList.remove('hidden');
+publishBtn.style.display = 'block'; 
+publishInstagramBtn.style.display = 'block'; 
+publishFacebookBtn.style.display = 'block';
+publishTikTokBtn.style.display =
+    currentFormat === 'reels'
+        ? 'block'
+        : 'none';
+
+        publishLinkedInBtn.style.display = 'block';
+        publishYouTubeBtn.style.display =
+    currentFormat === 'reels'
+        ? 'block'
+        : 'none';
+
+        } catch (error) {
+            console.error('Ошибка при генерации:', error);
+            alert('Не удалось сгенерировать контент: ' + error.message);
+        } finally {
+            isLoading = false;
+            btn.textContent = '✦ Сгенерировать контент';
+            validateForm();
+        }
+    }
+
+
+  // ========================================================
+    // ПУБЛИКАЦИЯ В THREADS
+    // ========================================================
+
+    async function publishToThreads() {
+        if (!generatedContent || isPublishing) {
+            return;
+        }
+
+        if (!requireSelectedPlatform('threads')) {
+            return;
+        }
+
+        isPublishing = true;
+        const publishBtn = document.getElementById('publishBtn');
+        const publishStatus = document.getElementById('publishStatus');
+
+        publishBtn.disabled = true;
+        publishBtn.textContent = 'Публикация...';
+        publishStatus.classList.remove('hidden');
+        publishStatus.textContent = 'Отправка контента в Threads...';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/v1/publish`, {
+                method: 'POST',
+                headers: publishHeaders(),
+                body: JSON.stringify({
+                    content: generatedContent
+                })
+            });
+
+            const data = await readResponseData(response);
+
+            if (!response.ok) {
+                throw new Error(getErrorMessage(data, 'Не удалось опубликовать'));
+            }
+
+            publishStatus.style.color = 'var(--color-secondary)';
+            publishStatus.textContent = '✓ Успешно опубликовано в Threads!';
+        } catch (error) {
+            console.error('Ошибка публикации:', error);
+            publishStatus.style.color = '#ef4444';
+            publishStatus.textContent = 'Ошибка: ' + error.message;
+        } finally {
+            isPublishing = false;
+            publishBtn.disabled = false;
+            publishBtn.textContent = '↗ Опубликовать в Threads';
+        }
+    }
+
+    // ========================================================
+// ПУБЛИКАЦИЯ В INSTAGRAM
+// ========================================================
+
+async function publishToInstagram() {
+
+    if (!generatedContent || isPublishing) {
+        return;
+    }
+
+    if (!requireSelectedPlatform('instagram')) {
+        return;
+    }
+
+    isPublishing = true;
+
+    const publishBtn =
+        document.getElementById(
+            'publishInstagramBtn'
+        );
+
+    const publishStatus =
+        document.getElementById(
+            'publishStatus'
+        );
+
+    publishBtn.disabled = true;
+
+    publishBtn.textContent =
+        'Публикация...';
+
+    publishStatus.classList.remove(
+        'hidden'
+    );
+
+    publishStatus.style.color =
+        'var(--color-muted-foreground)';
+
+    publishStatus.textContent =
+        'Отправка контента в Instagram...';
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/v1/publish-instagram`,
+                {
+                    method: 'POST',
+
+                    headers: publishHeaders(),
+
+                    body: JSON.stringify({
+                        content:
+                            generatedContent
+                    })
+                }
+            );
+
+        const data =
+            await readResponseData(
+                response
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                getErrorMessage(
+                    data,
+                    'Не удалось опубликовать в Instagram'
+                )
+            );
+        }
+
+        publishStatus.style.color =
+            'var(--color-secondary)';
+
+        publishStatus.textContent =
+            '✓ Успешно опубликовано в Instagram!';
+
+    } catch (error) {
+
+        console.error(
+            'Ошибка публикации в Instagram:',
+            error
+        );
+
+        publishStatus.style.color =
+            '#ef4444';
+
+        publishStatus.textContent =
+            'Ошибка Instagram: ' +
+            error.message;
+
+    } finally {
+
+        isPublishing = false;
+
+        publishBtn.disabled = false;
+
+        publishBtn.textContent =
+            '◎ Опубликовать в Instagram';
+    }
+}
+
+// ========================================================
+// ПУБЛИКАЦИЯ В FACEBOOK
+// ========================================================
+
+async function publishToFacebook() {
+
+    if (!generatedContent || isPublishing) {
+        return;
+    }
+
+    if (!requireSelectedPlatform('facebook')) {
+        return;
+    }
+
+    isPublishing = true;
+
+    const publishBtn =
+        document.getElementById(
+            'publishFacebookBtn'
+        );
+
+    const publishStatus =
+        document.getElementById(
+            'publishStatus'
+        );
+
+    publishBtn.disabled = true;
+
+    publishBtn.textContent =
+        'Публикация...';
+
+    publishStatus.classList.remove(
+        'hidden'
+    );
+
+    publishStatus.style.color =
+        'var(--color-muted-foreground)';
+
+    publishStatus.textContent =
+        'Отправка контента в Facebook...';
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/v1/publish-facebook`,
+                {
+                    method: 'POST',
+
+                    headers: publishHeaders(),
+
+                    body: JSON.stringify({
+                        content:
+                            generatedContent
+                    })
+                }
+            );
+
+        const data =
+            await readResponseData(
+                response
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                getErrorMessage(
+                    data,
+                    'Не удалось опубликовать в Facebook'
+                )
+            );
+        }
+
+        publishStatus.style.color =
+            'var(--color-secondary)';
+
+        publishStatus.textContent =
+            '✓ Успешно опубликовано в Facebook!';
+
+    } catch (error) {
+
+        console.error(
+            'Ошибка публикации в Facebook:',
+            error
+        );
+
+        publishStatus.style.color =
+            '#ef4444';
+
+        publishStatus.textContent =
+            'Ошибка Facebook: ' +
+            error.message;
+
+    } finally {
+
+        isPublishing = false;
+
+        publishBtn.disabled = false;
+
+        publishBtn.textContent =
+            'f Опубликовать в Facebook';
+    }
+}
+
+// ========================================================
+// ПУБЛИКАЦИЯ В TIKTOK
+// ========================================================
+
+async function publishToTikTok() {
+
+    if (!generatedContent || isPublishing) {
+        return;
+    }
+
+    if (!requireSelectedPlatform('tiktok')) {
+        return;
+    }
+
+    isPublishing = true;
+
+    const publishBtn =
+        document.getElementById(
+            'publishTikTokBtn'
+        );
+
+    const publishStatus =
+        document.getElementById(
+            'publishStatus'
+        );
+
+    publishBtn.disabled = true;
+
+    publishBtn.textContent =
+        'Публикация...';
+
+    publishStatus.classList.remove(
+        'hidden'
+    );
+
+    publishStatus.style.color =
+        'var(--color-muted-foreground)';
+
+    publishStatus.textContent =
+        'Отправка видео в TikTok...';
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/v1/publish-tiktok`,
+                {
+                    method: 'POST',
+
+                    headers: publishHeaders(),
+
+                    body: JSON.stringify({
+                        content:
+                            generatedContent
+                    })
+                }
+            );
+
+        const data =
+            await readResponseData(
+                response
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                getErrorMessage(
+                    data,
+                    'Не удалось опубликовать в TikTok'
+                )
+            );
+        }
+
+        publishStatus.style.color =
+            'var(--color-secondary)';
+
+        publishStatus.textContent =
+            '✓ Успешно опубликовано в TikTok!';
+
+    } catch (error) {
+
+        console.error(
+            'Ошибка публикации в TikTok:',
+            error
+        );
+
+        publishStatus.style.color =
+            '#ef4444';
+
+        publishStatus.textContent =
+            'Ошибка TikTok: ' +
+            error.message;
+
+    } finally {
+
+        isPublishing = false;
+
+        publishBtn.disabled = false;
+
+        publishBtn.textContent =
+            '♪ Опубликовать в TikTok';
+    }
+}
+
+// ========================================================
+// ПУБЛИКАЦИЯ В LINKEDIN
+// ========================================================
+
+async function publishToLinkedIn() {
+
+    if (!generatedContent || isPublishing) {
+        return;
+    }
+
+    if (!requireSelectedPlatform('linkedin')) {
+        return;
+    }
+
+    isPublishing = true;
+
+    const publishBtn =
+        document.getElementById(
+            'publishLinkedInBtn'
+        );
+
+    const publishStatus =
+        document.getElementById(
+            'publishStatus'
+        );
+
+    publishBtn.disabled = true;
+
+    publishBtn.textContent =
+        'Публикация...';
+
+    publishStatus.classList.remove(
+        'hidden'
+    );
+
+    publishStatus.style.color =
+        'var(--color-muted-foreground)';
+
+    publishStatus.textContent =
+        'Отправка контента в LinkedIn...';
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/v1/publish-linkedin`,
+                {
+                    method: 'POST',
+
+                    headers: publishHeaders(),
+
+                    body: JSON.stringify({
+                        content:
+                            generatedContent
+                    })
+                }
+            );
+
+        const data =
+            await readResponseData(
+                response
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                getErrorMessage(
+                    data,
+                    'Не удалось опубликовать в LinkedIn'
+                )
+            );
+        }
+
+        publishStatus.style.color =
+            'var(--color-secondary)';
+
+        publishStatus.textContent =
+            '✓ Успешно опубликовано в LinkedIn!';
+
+    } catch (error) {
+
+        console.error(
+            'Ошибка публикации в LinkedIn:',
+            error
+        );
+
+        publishStatus.style.color =
+            '#ef4444';
+
+        publishStatus.textContent =
+            'Ошибка LinkedIn: ' +
+            error.message;
+
+    } finally {
+
+        isPublishing = false;
+
+        publishBtn.disabled = false;
+
+        publishBtn.textContent =
+            'in Опубликовать в LinkedIn';
+    }
+}
+
+// ========================================================
+// ПУБЛИКАЦИЯ В YOUTUBE
+// ========================================================
+
+async function publishToYouTube() {
+
+    if (!generatedContent || isPublishing) {
+        return;
+    }
+
+    if (!requireSelectedPlatform('youtube')) {
+        return;
+    }
+
+    isPublishing = true;
+
+    const publishBtn =
+        document.getElementById(
+            'publishYouTubeBtn'
+        );
+
+    const publishStatus =
+        document.getElementById(
+            'publishStatus'
+        );
+
+    publishBtn.disabled = true;
+
+    publishBtn.textContent =
+        'Публикация...';
+
+    publishStatus.classList.remove(
+        'hidden'
+    );
+
+    publishStatus.style.color =
+        'var(--color-muted-foreground)';
+
+    publishStatus.textContent =
+        'Загрузка видео в YouTube...';
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/v1/publish-youtube`,
+                {
+                    method: 'POST',
+
+                    headers: publishHeaders(),
+
+                    body: JSON.stringify({
+                        content:
+                            generatedContent
+                    })
+                }
+            );
+
+        const data =
+            await readResponseData(
+                response
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                getErrorMessage(
+                    data,
+                    'Не удалось опубликовать в YouTube'
+                )
+            );
+        }
+
+        publishStatus.style.color =
+            'var(--color-secondary)';
+
+        publishStatus.textContent =
+            '✓ Видео успешно опубликовано в YouTube!';
+
+    } catch (error) {
+
+        console.error(
+            'Ошибка публикации в YouTube:',
+            error
+        );
+
+        publishStatus.style.color =
+            '#ef4444';
+
+        publishStatus.textContent =
+            'Ошибка YouTube: ' +
+            error.message;
+
+    } finally {
+
+        isPublishing = false;
+
+        publishBtn.disabled = false;
+
+        publishBtn.textContent =
+            '▶ Опубликовать в YouTube';
+    }
+
+}
+    // ========================================================
+    // ЗАПУСК
+    // ========================================================
+
+    setFormat('carousel');
+
+    loadSourceTexts();
+
+</script>
+
+
+</body>
+
+</html>

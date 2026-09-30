@@ -1,0 +1,4 @@
+{'client_key_length': 18, 'client_key_prefix': 'sbaw', 'redirect_uri': 'https://diligent-onstage-retool.ngrok-free.dev/api/v1/oauth/tiktok/callback'}
+{'client_key_length': 18, 'client_key_prefix': 'sbaw', 'redirect_uri': 'https://diligent-onstage-retool.ngrok-free.dev/api/v1/oauth/tiktok/callback'}
+{'client_key_length': 18, 'client_key_prefix': 'sbaw', 'redirect_uri': 'https://diligent-onstage-retool.ngrok-free.dev/api/v1/oauth/tiktok/callback'}
+{'client_key_length': 18, 'client_key_prefix': 'sbaw', 'redirect_uri': 'https://diligent-onstage-retool.ngrok-free.dev/api/v1/oauth/tiktok/callback'}

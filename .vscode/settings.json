@@ -1,0 +1,27 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^python -c \"from main import GenerateRequest; from pydantic import ValidationError;\\\\ntry:\\\\n    GenerateRequest\\(language='ru', selected_formats=\\['post'\\], page_text='test text long enough', tov=''\\)\\\\n    print\\('OK'\\)\\\\nexcept ValidationError as e:\\\\n    print\\(e\\.errors\\(\\)\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        ".\\.venv\\Scripts\\python.exe": true,
+        "ForEach-Object": true,
+        "/^python -m py_compile main\\.py$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "python": true,
+        "pip": true,
+        "npm": true,
+        "npx": true,
+        "node": true,
+        "git": true,
+        "curl": true,
+        "/^(Get-Content|Get-ChildItem|Test-Path).*$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "Set-Location": true,
+        ".venv\\Scripts\\python.exe": true
+    }
+}
