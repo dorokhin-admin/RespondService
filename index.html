@@ -798,21 +798,18 @@
     // ========================================================
 
     const API_BASE_URL = (() => {
-        const localFrontendHostnames = new Set([
-            '127.0.0.1',
-            'localhost',
-            '[::1]'
-        ]);
+    const localFrontendHostnames = new Set([
+        '127.0.0.1',
+        'localhost',
+        '[::1]'
+    ]);
 
-        if (localFrontendHostnames.has(window.location.hostname)) {
-            return 'http://127.0.0.1:8000';
-        }
+    if (localFrontendHostnames.has(window.location.hostname)) {
+        return 'http://127.0.0.1:8000';
+    }
 
-        return window.location.protocol === 'http:' ||
-            window.location.protocol === 'https:'
-            ? window.location.origin
-            : 'http://127.0.0.1:8000';
-    })();
+    return 'https://respondservice-api.onrender.com';
+})();
 
     let authToken = localStorage.getItem('respondservice_access_token') || '';
     let currentUser = null;
