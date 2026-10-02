@@ -342,11 +342,7 @@ class GenerateRequest(BaseModel):
         max_length=1000
     )
 
-    provider: str = Field(
-        default="openai",
-        min_length=2,
-        max_length=20
-    )
+    provider: str = Field(default="grok", min_length=2, max_length=20)
 
     @field_validator("selected_formats")
     @classmethod
@@ -3918,25 +3914,24 @@ AI_TIMEOUT = httpx.Timeout(
     pool=30.0
 )
 
-
 async def call_ai_llm(
     provider: str,
     system_prompt: str,
     user_prompt: str
 ) -> dict:
-    if (provider or "openai").strip().lower() != "openai":
+    if (provider or "grok").strip().lower() != "grok":
         raise HTTPException(
             status_code=400,
-            detail="Поддерживается только провайдер OpenAI"
+            detail="Поддерживается только провайдер Grok"
         )
 
-    api_key = os.getenv("OPENAI_API_KEY")
-    api_url = "https://api.openai.com/v1/chat/completions"
+    api_key = os.getenv("XAI_API_KEY")
+    api_url = "https://api.x.ai/v1/chat/completions"
     model = os.getenv(
-    "OPENAI_TEXT_MODEL",
-    "gpt-5.6-luna"
-).strip()
-    provider_label = "OpenAI"
+        "XAI_TEXT_MODEL",
+        "grok-4.7"
+    ).strip()
+    provider_label = "Grok"
 
     if not api_key:
         raise HTTPException(
@@ -3948,22 +3943,22 @@ async def call_ai_llm(
         )
 
     request_payload = {
-    "model": model,
-    "messages": [
-        {
-            "role": "system",
-            "content": system_prompt
+        "model": model,
+        "messages": [
+            {
+                "role": "system",
+                "content": system_prompt
+            },
+            {
+                "role": "user",
+                "content": user_prompt
+            }
+        ],
+        "response_format": {
+            "type": "json_object"
         },
-        {
-            "role": "user",
-            "content": user_prompt
-        }
-    ],
-    "response_format": {
-        "type": "json_object"
-    },
-    "max_completion_tokens": 16000
-}
+        "max_tokens": 16000
+    }
 
     last_error = None
     response = None
@@ -4025,9 +4020,11 @@ async def call_ai_llm(
         raise HTTPException(
             status_code=504,
             detail=(
-                f"{provider_label} API не ответил за отведённое время "
-                f"после {AI_MAX_ATTEMPTS} попыток. "
-                f"Тип ошибки: {error_name}. {error_hint}"
+                f"{provider_label} API не ответил "
+                f"за отведённое время после "
+                f"{AI_MAX_ATTEMPTS} попыток. "
+                f"Тип ошибки: {error_name}. "
+                f"{error_hint}"
             )
         )
 
@@ -4072,7 +4069,6 @@ async def call_ai_llm(
             }
         ) from exc
 
-
     finish_reason = choice.get(
         "finish_reason"
     )
@@ -4086,7 +4082,6 @@ async def call_ai_llm(
         message.get("refusal")
         or ""
     ).strip()
-
 
     print(
         "AI FINISH REASON:",
@@ -4108,13 +4103,11 @@ async def call_ai_llm(
         content[:1000]
     )
 
-
     # ========================================================
     # REFUSAL
     # ========================================================
 
     if refusal:
-
         raise HTTPException(
             status_code=502,
             detail={
@@ -4126,32 +4119,28 @@ async def call_ai_llm(
             }
         )
 
-
     # ========================================================
     # RESPONSE TRUNCATED
     # ========================================================
 
     if finish_reason == "length":
-
         raise HTTPException(
             status_code=502,
             detail={
                 "error": (
                     "AI не успел завершить JSON-ответ. "
-                    "Увеличьте max_completion_tokens."
+                    "Увеличьте max_tokens."
                 ),
                 "finish_reason": finish_reason,
                 "content_length": len(content)
             }
         )
 
-
     # ========================================================
     # CONTENT EMPTY
     # ========================================================
 
     if not content:
-
         raise HTTPException(
             status_code=502,
             detail={
@@ -4162,19 +4151,14 @@ async def call_ai_llm(
             }
         )
 
-
     # ========================================================
     # PARSE JSON
     # ========================================================
 
     try:
-
-        parsed_content = json.loads(
-            content
-        )
+        parsed_content = json.loads(content)
 
     except json.JSONDecodeError as exc:
-
         raise HTTPException(
             status_code=502,
             detail={
@@ -4190,7 +4174,6 @@ async def call_ai_llm(
         "usage": result_data.get("usage") or {},
         "model": model,
     }
-
 
 # ============================================================
 # SEO API
