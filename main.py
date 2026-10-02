@@ -259,15 +259,25 @@ FALLBACK_TEXT_COLOR = "#FFFFFF"
 # ============================================================
 
 FONT_REGULAR_PATHS = [
+    # Windows
     "C:/Windows/Fonts/arial.ttf",
     "C:/Windows/Fonts/segoeui.ttf",
     "C:/Windows/Fonts/calibri.ttf",
+
+    # Linux / Render
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed.ttf",
 ]
 
 FONT_BOLD_PATHS = [
+    # Windows
     "C:/Windows/Fonts/arialbd.ttf",
     "C:/Windows/Fonts/segoeuib.ttf",
     "C:/Windows/Fonts/calibrib.ttf",
+
+    # Linux / Render
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf",
 ]
 
 
