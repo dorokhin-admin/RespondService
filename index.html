@@ -1170,17 +1170,15 @@ if (authToken) {
     // ВЫБОР СТРАНИЦЫ
     // ========================================================
 
-    function selectPage() {
+        function selectPage() {
 
         const select =
             document.getElementById(
                 'pageSelect'
             );
 
-
         const selectedIndex =
             select.value;
-
 
         if (
             selectedIndex === ''
@@ -1188,23 +1186,85 @@ if (authToken) {
             return;
         }
 
-
         const page =
             sourcePages[
                 Number(selectedIndex)
             ];
 
-
         if (!page) {
             return;
         }
-
 
         document.getElementById(
             'pageText'
         ).value =
             page.page_text || '';
 
+        // ------------------------------------------------
+        // SEO URL И KEYWORDS
+        // ------------------------------------------------
+
+        let seoInfo =
+            document.getElementById(
+                'seoInfo'
+            );
+
+        if (!seoInfo) {
+
+            seoInfo =
+                document.createElement(
+                    'div'
+                );
+
+            seoInfo.id =
+                'seoInfo';
+
+            seoInfo.style.marginTop =
+                '12px';
+
+            seoInfo.style.padding =
+                '12px';
+
+            seoInfo.style.border =
+                '1px solid var(--color-border)';
+
+            seoInfo.style.borderRadius =
+                '8px';
+
+            seoInfo.style.fontSize =
+                '13px';
+
+            seoInfo.style.lineHeight =
+                '1.5';
+
+            document.getElementById(
+                'pageText'
+            ).parentElement.appendChild(
+                seoInfo
+            );
+        }
+
+        const pageUrl =
+            page.url || '—';
+
+        const pageKeywords =
+            Array.isArray(page.keywords)
+                ? page.keywords.join(', ')
+                : '—';
+
+        seoInfo.innerHTML = `
+            <div>
+                <strong>URL страницы:</strong>
+                <br>
+                ${pageUrl}
+            </div>
+
+            <div style="margin-top: 8px;">
+                <strong>SEO keywords:</strong>
+                <br>
+                ${pageKeywords}
+            </div>
+        `;
 
         validateForm();
     }
