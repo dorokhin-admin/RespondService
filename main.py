@@ -3467,7 +3467,9 @@ def build_dynamic_prompt(
     selected_formats: List[AllowedFormat],
     language: str,
     page_text: str,
-    tov: str
+    tov: str,
+    page_url: str,
+    page_keywords: List[str]
 ):
 
     normalized_tov = (
@@ -3482,6 +3484,14 @@ def build_dynamic_prompt(
     instructions = [
         f"Язык генерации: {language.upper()}."
     ]
+    instructions.append(
+        f"URL исходной страницы: {page_url}"
+    )
+
+    instructions.append(
+        "Ключевые слова SEO: "
+        + ", ".join(page_keywords)
+    )
 
     json_schema = {}
 
@@ -4263,7 +4273,32 @@ async def get_source_texts() -> dict:
         )
 
     try:
-        return response.json()
+        data = response.json()
+
+        print(
+    "SEO API PAGES COUNT:",
+    len(data.get("pages", []))
+)
+
+        if data.get("pages"):
+            first_page = data["pages"][0]
+
+            print(
+                "SEO API FIRST PAGE KEYS:",
+                list(first_page.keys())
+            )
+
+            print(
+                "SEO API FIRST PAGE URL:",
+                first_page.get("url")
+            )
+
+            print(
+                "SEO API FIRST PAGE KEYWORDS:",
+                first_page.get("keywords")
+            )
+
+        return data
     except json.JSONDecodeError as e:
         raise HTTPException(
             status_code=502,
@@ -8284,11 +8319,41 @@ async def generate_content(
 ):
     metrics = {}
 
+    source_data = await get_source_texts()
+    source_pages = source_data.get("pages", [])
+
+    selected_page = None
+
+    for page in source_pages:
+        if page.get("page_text") == payload.page_text:
+            selected_page = page
+            break
+
+    if not selected_page:
+        raise HTTPException(
+            status_code=400,
+            detail="Не удалось найти выбранную страницу в SEO API"
+        )
+
+    page_url = selected_page.get("url", "")
+    page_keywords = selected_page.get("keywords", [])
+
+    if not page_url:
+        raise HTTPException(
+            status_code=502,
+            detail="У выбранной страницы отсутствует URL в SEO API"
+        )
+
+    if not isinstance(page_keywords, list):
+        page_keywords = []
+
     system_p, user_p = build_dynamic_prompt(
         payload.selected_formats,
         payload.language,
         payload.page_text,
-        payload.tov
+        payload.tov,
+        page_url,
+        page_keywords
     )
 
     # ========================================================
@@ -9156,7 +9221,6 @@ async def publish_facebook(
     # REELS
     # ========================================================
 
-    reels = content.get("reels")
     reels = content.get("reels")
 
     if reels:
@@ -10334,9 +10398,6 @@ async def publish_youtube(
         description_parts
     ).strip()
 
-    # ========================================================
-    # 9. UPLOAD VIDEO TO YOUTUBE
-    # ========================================================
 
     # ========================================================
 # 9. UPLOAD VIDEO TO YOUTUBE
