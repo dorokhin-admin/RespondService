@@ -3935,7 +3935,7 @@ async def call_ai_llm(
             detail="Поддерживается только провайдер Grok"
         )
 
-    api_key = os.getenv("XAI_API_KEY")
+    api_key = os.getenv("XAI_API_KEY", "").strip()
     api_url = "https://api.x.ai/v1/chat/completions"
     model = os.getenv(
         "XAI_TEXT_MODEL",
