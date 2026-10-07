@@ -19,7 +19,7 @@ def test_reels_fallback_reports_unavailable_without_video_provider():
     )
 
     assert result["status"] == "video_generation_unavailable"
-    assert "OpenAI Videos API" in result["detail"]
+    assert "провайдер генерации MP4 не настроен" in result["detail"]
 
 
 def test_reels_fallback_returns_success_for_injected_video_generator():
