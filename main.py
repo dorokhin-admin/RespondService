@@ -188,24 +188,15 @@ app.mount(
 IMAGE_WIDTH = 1080
 IMAGE_HEIGHT = 1350
 
-# GPT Image 2 требует размеры, кратные 16.
-# Поэтому генерируем в 1024x1280 (точный 4:5),
-# затем технически увеличиваем до 1080x1350.
-IMAGE_GENERATION_WIDTH = 1024
-IMAGE_GENERATION_HEIGHT = 1280
-IMAGE_GENERATION_SIZE = (
-    f"{IMAGE_GENERATION_WIDTH}x{IMAGE_GENERATION_HEIGHT}"
-)
-
 # Модель можно менять через .env.
-OPENAI_IMAGE_MODEL = os.getenv(
-    "OPENAI_IMAGE_MODEL",
-    "gpt-image-2"
+XAI_IMAGE_MODEL = os.getenv(
+    "XAI_IMAGE_MODEL",
+    "grok-imagine-image-2.0"
 ).strip()
 
-OPENAI_IMAGE_QUALITY = os.getenv(
-    "OPENAI_IMAGE_QUALITY",
-    "high"
+XAI_IMAGE_RESOLUTION = os.getenv(
+    "XAI_IMAGE_RESOLUTION",
+    "1k"
 ).strip()
 
 # Vision-проверка результата.
@@ -218,8 +209,8 @@ CAROUSEL_IMAGE_REVIEW_ENABLED = (
 )
 
 CAROUSEL_IMAGE_REVIEW_MODEL = os.getenv(
-    "CAROUSEL_IMAGE_REVIEW_MODEL",
-    "gpt-5.6-luna"
+    "XAI_VISION_MODEL",
+    "grok-4.7"
 ).strip()
 
 CAROUSEL_IMAGE_MAX_ATTEMPTS = int(
@@ -768,7 +759,7 @@ def fit_text_font(
 
 
 # ============================================================
-# OPENAI IMAGE GENERATION
+# XAI IMAGE GENERATION
 # ============================================================
 
 def _clamp(
@@ -1110,14 +1101,12 @@ async def generate_carousel_image(
     retry_feedback: str = ""
 ) -> Dict[str, Any]:
 
-    api_key = os.getenv(
-        "OPENAI_API_KEY"
-    )
+    api_key = os.getenv("XAI_API_KEY", "").strip()
 
     if not api_key:
         raise HTTPException(
             status_code=500,
-            detail="OPENAI_API_KEY не найден"
+            detail="XAI_API_KEY не найден"
         )
 
     art_direction = (
@@ -1292,12 +1281,11 @@ STRICT VISUAL REQUIREMENTS:
 """
 
     request_payload = {
-        "model": OPENAI_IMAGE_MODEL,
+        "model": XAI_IMAGE_MODEL,
         "prompt": prompt,
-        "size": IMAGE_GENERATION_SIZE,
-        "quality": OPENAI_IMAGE_QUALITY,
-        "output_format": "png",
-        "background": "opaque",
+        "aspect_ratio": "3:4",
+        "resolution": XAI_IMAGE_RESOLUTION,
+        "response_format": "b64_json",
         "n": 1
     }
 
@@ -1315,7 +1303,7 @@ STRICT VISUAL REQUIREMENTS:
             ) as client:
 
                 response = await client.post(
-                    "https://api.openai.com/v1/images/generations",
+                    "https://api.x.ai/v1/images/generations",
                     headers={
                         "Authorization": (
                             f"Bearer {api_key}"
@@ -1337,7 +1325,7 @@ STRICT VISUAL REQUIREMENTS:
                     status_code=504,
                     detail={
                         "error": (
-                            "OpenAI Image API "
+                            "xAI Imagine API "
                             "не ответил"
                         ),
                         "attempt": attempt,
@@ -1360,9 +1348,8 @@ STRICT VISUAL REQUIREMENTS:
                 return {
                     "bytes": base64.b64decode(encoded),
                     "usage": data.get("usage") or {},
-                    "model": OPENAI_IMAGE_MODEL,
-                    "quality": OPENAI_IMAGE_QUALITY,
-                    "size": IMAGE_GENERATION_SIZE,
+                    "model": XAI_IMAGE_MODEL,
+                    "resolution": XAI_IMAGE_RESOLUTION,
                 }
 
             except (
@@ -1376,7 +1363,7 @@ STRICT VISUAL REQUIREMENTS:
                     status_code=502,
                     detail={
                         "error": (
-                            "OpenAI не вернул "
+                            "xAI не вернул "
                             "корректное изображение"
                         ),
                         "response": response.text
@@ -1399,7 +1386,7 @@ STRICT VISUAL REQUIREMENTS:
             detail={
                 "error": (
                     "Ошибка генерации "
-                    "изображения OpenAI"
+                    "изображения xAI"
                 ),
                 "status": response.status_code,
                 "response": last_response_text
@@ -1408,7 +1395,7 @@ STRICT VISUAL REQUIREMENTS:
 
     raise HTTPException(
         status_code=502,
-        detail="Не удалось получить изображение OpenAI"
+        detail="Не удалось получить изображение xAI"
     )
 
 
@@ -1417,14 +1404,12 @@ async def review_carousel_image(
     slide: Dict[str, Any]
 ) -> Dict[str, Any]:
 
-    api_key = os.getenv(
-        "OPENAI_API_KEY"
-    )
+    api_key = os.getenv("XAI_API_KEY", "").strip()
 
     if not api_key:
         raise HTTPException(
             status_code=500,
-            detail="OPENAI_API_KEY не найден"
+            detail="XAI_API_KEY не найден"
         )
 
     image_base64 = base64.b64encode(
@@ -1570,7 +1555,7 @@ Evaluation rules:
         ) as client:
 
             response = await client.post(
-                "https://api.openai.com/v1/chat/completions",
+                "https://api.x.ai/v1/chat/completions",
                 headers={
                     "Authorization": (
                         f"Bearer {api_key}"
@@ -2595,7 +2580,7 @@ async def render_carousel(
     vision_total_input_tokens = 0
     vision_total_output_tokens = 0
 
-    image_model = OPENAI_IMAGE_MODEL
+    image_model = XAI_IMAGE_MODEL
     vision_model = CAROUSEL_IMAGE_REVIEW_MODEL
 
     for asset in generated_assets:
@@ -2761,8 +2746,8 @@ async def render_carousel(
                 ],
                 "layout": layout,
                 "image_generation": {
-                    "model": OPENAI_IMAGE_MODEL,
-                    "quality": OPENAI_IMAGE_QUALITY,
+                    "model": XAI_IMAGE_MODEL,
+                    "resolution": XAI_IMAGE_RESOLUTION,
                     "attempt": asset.get(
                         "attempt",
                         1
@@ -2783,8 +2768,8 @@ async def render_carousel(
         "carousel_id": carousel_id,
         "width": IMAGE_WIDTH,
         "height": IMAGE_HEIGHT,
-        "image_model": OPENAI_IMAGE_MODEL,
-        "image_quality": OPENAI_IMAGE_QUALITY,
+        "image_model": XAI_IMAGE_MODEL,
+        "image_resolution": XAI_IMAGE_RESOLUTION,
         "art_direction": carousel.get(
             "art_direction",
             {}
@@ -3031,10 +3016,10 @@ async def generate_reels_video_fallback(
     if video_factory is None:
         return {
             "status": "video_generation_unavailable",
-            "error": "OpenAI не предоставляет доступную генерацию видео",
+            "error": "Генерация видео не подключена",
             "detail": (
-                "OpenAI Videos API остановлена. Сценарий Reels создан, "
-                "но MP4 не сформирован."
+                "Сценарий Reels создан, но провайдер генерации MP4 "
+                "не настроен."
             )
         }
 
@@ -3075,8 +3060,8 @@ async def generate_reels_video(
     raise HTTPException(
         status_code=503,
         detail=(
-            "Генерация MP4 сейчас недоступна: OpenAI Videos API "
-            "остановлена. Сценарий Reels можно сгенерировать отдельно."
+            "Генерация MP4 сейчас не подключена. "
+            "Сценарий Reels можно сгенерировать отдельно."
         )
     )
 
@@ -3275,7 +3260,7 @@ async def upload_video_to_youtube(
         "privacy_status": "private"
     }
 # ============================================================
-# РАСЧЁТ ФАКТИЧЕСКОЙ СТОИМОСТИ OPENAI
+# РАСЧЁТ ФАКТИЧЕСКОЙ СТОИМОСТИ ГЕНЕРАЦИИ
 # ============================================================
 
 def calculate_usage_cost(
@@ -3284,7 +3269,7 @@ def calculate_usage_cost(
 
     # --------------------------------------------------------
     # 1. TEXT GENERATION
-    # GPT-5.6 Luna
+    # Grok text model
     # --------------------------------------------------------
 
     text_usage = (
@@ -3327,7 +3312,7 @@ def calculate_usage_cost(
 
     # --------------------------------------------------------
     # 2. IMAGE GENERATION
-    # GPT-Image-2
+    # Grok Imagine
     # --------------------------------------------------------
 
     image_usage = (
@@ -3393,9 +3378,7 @@ def calculate_usage_cost(
         or 0
     )
 
-    # Здесь цена зависит от модели Vision.
-    # Пока используем те же ставки GPT-5.6 Luna,
-    # если CAROUSEL_IMAGE_REVIEW_MODEL = gpt-5.6-luna.
+    # Vision uses the configured Grok model.
 
     vision_input_cost = (
         vision_input_tokens
@@ -3909,7 +3892,7 @@ CTA — одно действие.
 
 
 # ============================================================
-# OPENAI TEXT GENERATION
+# GROK TEXT GENERATION
 # ============================================================
 
 AI_MAX_ATTEMPTS = 3
@@ -8606,8 +8589,8 @@ async def render_reels_endpoint(
     raise HTTPException(
         status_code=503,
         detail=(
-            "Генерация MP4 сейчас недоступна: OpenAI Videos API "
-            "остановлена. Сценарий Reels можно сгенерировать отдельно."
+            "Генерация MP4 сейчас не подключена. "
+            "Сценарий Reels можно сгенерировать отдельно."
         )
     )
 
