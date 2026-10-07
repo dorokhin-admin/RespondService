@@ -59,6 +59,27 @@ def test_text_generation_uses_openai_model_and_key(monkeypatch):
     assert request["json"]["model"] == "gpt-6-luna"
 
 
+def test_text_generation_uses_trimmed_xai_key(monkeypatch):
+    FakeAsyncClient.requests = []
+    FakeAsyncClient.response_payload = {
+        "choices": [{"message": {"content": "{\"ok\": true}"}}]
+    }
+    monkeypatch.setattr(main.httpx, "AsyncClient", FakeAsyncClient)
+    monkeypatch.setenv("XAI_API_KEY", "  test-xai-key\r\n")
+
+    result = asyncio.run(main.call_ai_llm("grok", "system", "user"))
+
+    assert result == {
+        "content": {"ok": True},
+        "model": "grok-4.7",
+        "usage": {}
+    }
+    request = FakeAsyncClient.requests[0]
+    assert request["url"] == "https://api.x.ai/v1/chat/completions"
+    assert request["headers"]["Authorization"].endswith("test-xai-key")
+    assert request["json"]["model"] == "grok-4.7"
+
+
 def test_carousel_image_generation_uses_openai_image_api(monkeypatch):
     FakeAsyncClient.requests = []
     FakeAsyncClient.response_payload = {
